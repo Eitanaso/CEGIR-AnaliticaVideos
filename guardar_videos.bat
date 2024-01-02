@@ -1,0 +1,1 @@
+start "" "C:/Users/eitan/AppData/Local/Programs/Python/Python39/python.exe" "C:\Users\eitan\Desktop\cosas CEGIR\guardar_videos.py"
