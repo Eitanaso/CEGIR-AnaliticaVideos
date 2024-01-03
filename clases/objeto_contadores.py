@@ -1,5 +1,6 @@
 import supervision as sv
 from general import create_labels
+from clases.line_counter_edit import Contador_Actualizado
 
 #--------------------------------------------------------------------------------------------------------------------
 # Creacion de la clase que se encarga de los contadores en un espacio
@@ -27,7 +28,8 @@ class Objeto_Contadores:
     def create_line_zones(self, line):
         self.n_contadores = len(line)
         for i in range(self.n_contadores):
-            lz = sv.LineZone(start = sv.Point(line[i][0][0], line[i][0][1]), end = sv.Point(line[i][1][0], line[i][1][1]))
+            #lz = sv.LineZone(start = sv.Point(line[i][0][0], line[i][0][1]), end = sv.Point(line[i][1][0], line[i][1][1]))
+            lz = Contador_Actualizado(name='Contador', start = sv.Point(line[i][0][0], line[i][0][1]), end = sv.Point(line[i][1][0], line[i][1][1]))
             self.contadores.append(lz)
 
     def create_line_zone_annotators(self, texto_in='Nro per ARR-ABA', texto_out='Nro per ABA-ARR'):
