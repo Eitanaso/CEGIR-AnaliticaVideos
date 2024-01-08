@@ -79,3 +79,6 @@ def bbox_centros(bboxs_dets: np.ndarray, def_centro: str = 'centro') -> np.ndarr
       y_c = int(min(bbox[1], bbox[3]))
     res.append([x_c, y_c])
   return np.array(res)
+
+def guardar_xlsx_contador():
+  return None
