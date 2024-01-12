@@ -3,10 +3,12 @@ from supervision.geometry.core import Point, Rect, Vector
 from typing import Dict, Optional
 
 import cv2
+from PIL import ImageFont, ImageDraw, Image
 import numpy as np
 
 from supervision.detection.core import Detections
 from supervision.draw.color import Color
+
 
 ########################################################################################
 # Codigo de @maddust en https://github.com/roboflow/supervision/discussions/107
@@ -84,3 +86,194 @@ class Contador_Actualizado(LineZone):
                 self.in_count += 1
             else:
                 self.out_count += 1
+
+    def reset(self):
+        self.in_count = 0
+        self.out_count = 0
+
+class Anotador_Linea_Actualizado(LineZoneAnnotator):
+    def __init__(
+        self,
+        thickness: float = 2,
+        color: Color = Color.white(),
+        text_thickness: float = 2,
+        text_color: Color = Color.black(),
+        text_scale: float = 0.5,
+        text_offset: float = 1.5,
+        text_padding: int = 10,
+        custom_in_text: Optional[str] = None,
+        custom_out_text: Optional[str] = None,
+    ):
+        """
+        Initialize the LineCounterAnnotator object with default values.
+
+        Attributes:
+            thickness (float): The thickness of the line that will be drawn.
+            color (Color): The color of the line that will be drawn.
+            text_thickness (float): The thickness of the text that will be drawn.
+            text_color (Color): The color of the text that will be drawn.
+            text_scale (float): The scale of the text that will be drawn.
+            text_offset (float): The offset of the text that will be drawn.
+            text_padding (int): The padding of the text that will be drawn.
+
+        """
+        self.thickness: float = thickness
+        self.color: Color = color
+        self.text_thickness: float = text_thickness
+        self.text_color: Color = text_color
+        self.text_scale: float = text_scale
+        self.text_offset: float = text_offset
+        self.text_padding: int = text_padding
+        self.custom_in_text: str = custom_in_text
+        self.custom_out_text: str = custom_out_text
+
+    def annotate(self, frame: np.ndarray, line_counter: LineZone) -> np.ndarray:
+        """
+        Draws the line on the frame using the line_counter provided.
+
+        Attributes:
+            frame (np.ndarray): The image on which the line will be drawn.
+            line_counter (LineCounter): The line counter
+                that will be used to draw the line.
+
+        Returns:
+            np.ndarray: The image with the line drawn on it.
+
+        """
+        cv2.line(
+            frame,
+            line_counter.vector.start.as_xy_int_tuple(),
+            line_counter.vector.end.as_xy_int_tuple(),
+            self.color.as_bgr(),
+            self.thickness,
+            lineType=cv2.LINE_AA,
+            shift=0,
+        )
+        cv2.circle(
+            frame,
+            line_counter.vector.start.as_xy_int_tuple(),
+            radius=5,
+            color=self.text_color.as_bgr(),
+            thickness=-1,
+            lineType=cv2.LINE_AA,
+        )
+        cv2.circle(
+            frame,
+            line_counter.vector.end.as_xy_int_tuple(),
+            radius=5,
+            color=self.text_color.as_bgr(),
+            thickness=-1,
+            lineType=cv2.LINE_AA,
+        )
+
+        in_text = (
+            f"{self.custom_in_text}: {line_counter.in_count}"
+            if self.custom_in_text is not None
+            else f"in: {line_counter.in_count}"
+        )
+        out_text = (
+            f"{self.custom_out_text}: {line_counter.out_count}"
+            if self.custom_out_text is not None
+            else f"out: {line_counter.out_count}"
+        )
+
+        (in_text_width, in_text_height), _ = cv2.getTextSize(
+            in_text, cv2.FONT_HERSHEY_SIMPLEX, self.text_scale, self.text_thickness
+        )
+        (out_text_width, out_text_height), _ = cv2.getTextSize(
+            out_text, cv2.FONT_HERSHEY_SIMPLEX, self.text_scale, self.text_thickness
+        )
+
+        in_text_x = int(
+            (line_counter.vector.end.x + line_counter.vector.start.x - in_text_width)
+            / 2
+        )
+        in_text_y = int(
+            (line_counter.vector.end.y + line_counter.vector.start.y + in_text_height)
+            / 2
+            - self.text_offset * in_text_height
+        )
+
+        out_text_x = int(
+            (line_counter.vector.end.x + line_counter.vector.start.x - out_text_width)
+            / 2
+        )
+        out_text_y = int(
+            (line_counter.vector.end.y + line_counter.vector.start.y + out_text_height)
+            / 2
+            + self.text_offset * out_text_height
+        )
+
+        w, h, _ = frame.shape
+
+        in_text_x = int(w+80)
+        in_text_y = int(20)
+        out_text_x = int(w+80)
+        out_text_y = int(in_text_y + out_text_height + 10)
+
+        in_text_background_rect = Rect(
+            x=in_text_x,
+            y=in_text_y - in_text_height,
+            width=in_text_width,
+            height=in_text_height,
+        ).pad(padding=self.text_padding)
+        out_text_background_rect = Rect(
+            x=out_text_x,
+            y=out_text_y - out_text_height,
+            width=out_text_width,
+            height=out_text_height,
+        ).pad(padding=self.text_padding)
+
+        '''cv2.rectangle(
+            frame,
+            in_text_background_rect.top_left.as_xy_int_tuple(),
+            in_text_background_rect.bottom_right.as_xy_int_tuple(),
+            self.color.as_bgr(),
+            -1,
+        )
+        cv2.rectangle(
+            frame,
+            out_text_background_rect.top_left.as_xy_int_tuple(),
+            out_text_background_rect.bottom_right.as_xy_int_tuple(),
+            self.color.as_bgr(),
+            -1,
+        )'''
+
+        #print(frame.shape)
+
+        image = np.zeros(frame.shape, dtype=np.uint8)
+        image = cv2.cvtColor(frame.copy(), cv2.COLOR_BGR2RGB)
+        pil_image = Image.fromarray(image)
+
+        font = ImageFont.truetype("C:\Windows\Fonts\\arial.ttf", 18)
+        draw = ImageDraw.Draw(pil_image)
+        draw.text((in_text_x, in_text_y), in_text, font=font, align='left', fill='red')
+        draw.text((out_text_x, out_text_y), out_text, font=font, align='right', fill='red')
+
+        image = np.asarray(pil_image)
+        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+        frame = image
+        #cv2.imshow('image', frame)
+        #cv2.waitKey()
+
+        '''cv2.putText(
+            frame,
+            in_text,
+            (in_text_x, in_text_y),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            self.text_scale,
+            self.text_color.as_bgr(),
+            self.text_thickness,
+            cv2.LINE_AA,
+        )
+        cv2.putText(
+            frame,
+            out_text,
+            (out_text_x, out_text_y),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            self.text_scale,
+            self.text_color.as_bgr(),
+            self.text_thickness,
+            cv2.LINE_AA,
+        )'''
+        return frame

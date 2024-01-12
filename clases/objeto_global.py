@@ -2,6 +2,8 @@ import supervision as sv
 from clases.objeto_detector import Objeto_Detector
 from clases.objeto_estacionados import Objeto_Estacionados
 from clases.objeto_contadores import Objeto_Contadores
+from clases.objeto_trayectoria import Objeto_Trayectorias
+from clases.objeto_velocidades import Objeto_Velocidades
 
 #--------------------------------------------------------------------------------------------------------------------
 # Creacion de una clase general que organiza el/los analisis deseado/s
@@ -20,11 +22,14 @@ class Objeto_Global:
         self.solo_detector = False
         self.contadores = False
         self.estacionados = False
+        self.trayectorias = False
         self.velocidades = False
+        self.velocidad_por_zonas = False
 
         self.objeto_Detector = None
         self.objeto_Contadores = None
         self.objeto_Estacionados = None
+        self.objeto_Trayectorias = None
         self.objeto_Velocidades = None
 
         self.box_annotators = []
@@ -65,11 +70,25 @@ class Objeto_Global:
         self.objeto_Estacionados.create_polygone_zones(zonas)
         self.objeto_Estacionados.create_polygone_zone_annotators(centros_zonas)
     
-    def create_contadores(self, lineas_contadores):
+    def create_contadores(self, lineas_contadores):#, guardar_archivo):
         self.contadores = True
-        self.objeto_Contadores = Objeto_Contadores()
+        self.objeto_Contadores = Objeto_Contadores()#guardar_archivo)
         self.objeto_Contadores.create_line_zones(lineas_contadores)
         self.objeto_Contadores.create_line_zone_annotators()
+
+    def create_trayectorias(self, frame, guardar_evento):
+        self.trayectorias = True
+        self.objeto_Trayectorias = Objeto_Trayectorias(guardar_evento)
+        self.objeto_Trayectorias.frame_wh(frame)
+    
+    def create_velocidades(self, frame, por_zonas, zonas, min_max, guardar_evento):
+        self.velocidades = True
+        self.velocidad_por_zonas = por_zonas
+        self.objeto_Velocidades = Objeto_Velocidades(guardar_evento)
+        if por_zonas:
+            self.objeto_Velocidades.frame_wh(frame)
+            self.objeto_Velocidades.create_polygone_zones(zonas, min_max)
+            self.objeto_Velocidades.create_polygone_zone_annotators()
 
 
 

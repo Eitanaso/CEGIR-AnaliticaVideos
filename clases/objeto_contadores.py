@@ -1,6 +1,6 @@
 import supervision as sv
 from general import create_labels
-from clases.line_counter_edit import Contador_Actualizado
+from clases.line_counter_edit import Contador_Actualizado, Anotador_Linea_Actualizado
 
 #--------------------------------------------------------------------------------------------------------------------
 # Creacion de la clase que se encarga de los contadores en un espacio
@@ -8,13 +8,15 @@ from clases.line_counter_edit import Contador_Actualizado
 #--------------------------------------------------------------------------------------------------------------------
 
 class Objeto_Contadores:
-    def __init__(self):
+    def __init__(self):#, guardar_archivo):
         self.n_contadores = 0
         self.contadores = []
         self.anotador_contadores = []
         self.frame_w = 0
         self.frame_h = 0
         #self.trigger_position = sv.Position.CENTER
+
+        #self.documento_contador = guardar_archivo
 
         self.box_annotator = sv.BoxAnnotator(color=sv.Color(r=0, g=0, b=255), text_color=sv.Color.white(), thickness=1, text_thickness=1, text_scale=0.5)
         self.fps = 25
@@ -32,9 +34,9 @@ class Objeto_Contadores:
             lz = Contador_Actualizado(name='Contador', start = sv.Point(line[i][0][0], line[i][0][1]), end = sv.Point(line[i][1][0], line[i][1][1]))
             self.contadores.append(lz)
 
-    def create_line_zone_annotators(self, texto_in='Nro per ARR-ABA', texto_out='Nro per ABA-ARR'):
+    def create_line_zone_annotators(self, texto_in='N° per ↑', texto_out='N° per ↓'):
         for i in range(self.n_contadores):
-            anotador_lz = sv.LineZoneAnnotator(thickness=1, text_thickness=1, text_scale=0.75, color = sv.Color.blue(), text_color=sv.Color.white(), text_padding=1, text_offset=1,
+            anotador_lz = Anotador_Linea_Actualizado(thickness=1, text_thickness=1, text_scale=0.75, color = sv.Color.blue(), text_color=sv.Color.white(), text_padding=1, text_offset=1,
                                            custom_in_text=texto_in, custom_out_text=texto_out)
             self.anotador_contadores.append(anotador_lz)
         
@@ -50,5 +52,5 @@ class Objeto_Contadores:
                     labels = labels_i, skip_label = ~self.show_label
                     )
             self.contadores[i].trigger(detections_i)
-            self.anotador_contadores[i].annotate(annotated_frame, line_counter=self.contadores[i])
+            annotated_frame = self.anotador_contadores[i].annotate(annotated_frame, line_counter=self.contadores[i])
         return annotated_frame
