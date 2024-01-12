@@ -59,9 +59,9 @@ procesamiento = {
         [(427, 256), (579, 301), (706, 325), (703, 242), (578, 218), (476, 181)],
     ],
     'centros_zonas_estacionados': [(75, 195), (480, 185)],
-    'mostrar_trayectorias': True,
-    'mostrar_velocidades': False,
-    'velocidades_por_zonas': False,
+    'mostrar_trayectorias': False,
+    'mostrar_velocidades': True,
+    'velocidades_por_zonas': True,
     'zonas_velocidades': [
         [(316, 480), (232, 428), (563, 199), (720, 208), (720, 480)],
         [(232, 428), (563, 199), (457, 160), (74, 300)],
@@ -72,7 +72,7 @@ procesamiento = {
         [0, 90],
         [0, 70],
     ],
-    'guardar_videos_evento': True,
+    'guardar_videos_evento': False,
 }
 
 def main(rstp_url, model, clases, fps, procesamiento):
@@ -81,7 +81,44 @@ def main(rstp_url, model, clases, fps, procesamiento):
     #print(model.model.names)
     run_detect(cap, model, clases, fps, procesamiento)
 
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------
+procesamiento = {'solo_mostrar': False, 'solo_detector': False, 'mostrar_contadores': False, 'lineas_contadores': [], 'guardar_archivo_contador': False,  'mostrar_estacionados': False, 'zonas_estacionados': [], 'centros_zonas_estacionados': [], 'mostrar_trayectorias': False, 'mostrar_velocidades': True, 'velocidades_por_zonas': True, 'zonas_velocidades': [], 'min_max_zonas': [], 'guardar_videos_evento': False,}
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------
+# (182) Paseo Estacion Hanwha - Camara - 01-2024-01-07_17h15min00s000ms (20m) ---> ambulantes estacionados, se van por vehiculo carabinero, vuelven y despues se van corriendo
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------
+# (182) Paseo Estacion Hanwha - Camara - 01-2024-01-07_18h21min00s000ms (6m) ---> ciclistas, ambulantes se retiran y uno corre frente a un vehículo de carabineros
+# (182) Paseo Estacion Hanwha - Camara - 01-2024-01-07_18h45min18s000ms (1m 44s) ---> ciclistas en vereda y personas caminando en la calle
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------
+# (182) Paseo Estacion Hanwha - Camara - 01-2024-01-07_19h06min54s000ms (43s) ---> ciclista contra el transito al final
+# 39s - 43s ---> no sirve, no detecta la bicicleta ni el ciclista
+#rtsp_url = 'C:\\Users\\eitan\\Downloads\\videos_casos_uso_nuevos_cegir\\(182) Paseo Estacion Hanwha - Camara - 01-2024-01-07_19h06min54s000ms.mp4'
+#selected_classes = [1]
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------
+# (182) Paseo Estacion Hanwha - Camara - 01-2024-01-07_20h53min00s000ms (16m 1s) ---> vehiculo estacionado mucho tiempo (no se ve mucho), ambulantes estacionados, otros eventos
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------
+# (182) Paseo Estacion Hanwha - Camara - 01-2024-01-07_21h56min40s000ms (31s) ---> persona corriendo de noche
+# 20s - 25s
+#rtsp_url = 'C:\\Users\\eitan\\Downloads\\videos_casos_uso_nuevos_cegir\\(182) Paseo Estacion Hanwha - Camara - 01-2024-01-07_21h56min40s000ms.mp4'
+#procesamiento['mostrar_velocidades'] = True
+#procesamiento['velocidades_por_zonas'] = True
+#procesamiento['zonas_velocidades'] = [[(316, 480), (232, 428), (563, 199), (720, 208), (720, 480)], [(232, 428), (563, 199), (457, 160), (74, 300)], [(74, 300), (457, 160), (352, 87), (0, 195)],]
+#procesamiento['min_max_zonas'] = [[0, 100], [0, 90], [0, 70]]
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------
+# (182) Paseo Estacion Hanwha - Camara - 02-2024-01-07_17h15min00s000ms (20m) ---> personas cruzando mal, vehiculo esperando pasajeros, carabineros deteniendo a alguien
+# (182) Paseo Estacion Hanwha - Camara - 02-2024-01-07_18h21min00s000ms (6m) ---> vehiculos dejando personas, ambulante corriendo de vehiculo de carabineros
+# (182) Paseo Estacion Hanwha - Camara - 02-2024-01-07_18h45min18s000ms (1m 46s) ---> ciclistas y personas cruzando calle, personas en calle y caminando por reja
+# (182) Paseo Estacion Hanwha - Camara - 02-2024-01-07_19h06min54s000ms (43s) ---> ciclista contra el transito
+# (182) Paseo Estacion Hanwha - Camara - 02-2024-01-07_20h53min00s000ms (16m) ---> vehiculos estacionados mucho tiempo en alameda, personas (lejos) cruzando mal
+# (182) Paseo Estacion Hanwha - Camara - 02-2024-01-07_21h56min40s000ms (31s) ---> persona corriendo de noche (mismo anterior)
+# (182) Paseo Estacion Hanwha - Camara - 04-2024-01-07_17h15min00s000ms (20m) ---> ambulantes van y vienen, vehiculo de carabineros pasando (quizas corren, no se ve mucho)
+# (182) Paseo Estacion Hanwha - Camara - 04-2024-01-07_18h21min00s000ms (6m) ---> ambulante se instala, luego se retira al final por vehiculo de carabinero
+# (182) Paseo Estacion Hanwha - Camara - 04-2024-01-07_18h45min18s000ms (1m 42s) ---> carabineros pasan por la vereda al final
+# (182) Paseo Estacion Hanwha - Camara - 04-2024-01-07_19h06min54s000ms (41s) ---> no veo nada
+# (182) Paseo Estacion Hanwha - Camara - 04-2024-01-07_20h53min00s000ms (16m) ---> no vi nada
+# (182) Paseo Estacion Hanwha - Camara - 04-2024-01-07_21h56min40s000ms (32s) ---> misma persona corriendo en la noche
 
+rtsp_url = 'C:\\Users\\eitan\\Downloads\\videos_casos_uso_nuevos_cegir\\test.mp4'
+procesamiento['solo_detector'] = True
 
 if __name__ == '__main__':
 

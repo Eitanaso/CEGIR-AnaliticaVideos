@@ -11,6 +11,7 @@ def get_video(rtsp_url):
 
 def get_model(MODEL):
     model = YOLO(MODEL)
+    print(model.model.names)
     model.fuse()
     return model
 
