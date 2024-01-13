@@ -54,7 +54,7 @@ def detect(frame, model, selected_classes, tareas):
 
 
 
-def run_detect(cap, model, clases, fps, procesamiento, tiempos=[], i=0):
+def run_detect(cap, model, clases, fps, procesamiento, tiempos=[], i=0, mostrar_video=True, guardar_video_resultado=False, dir_resultado=''):
 
     #p1 = threading.Thread(target=Receive(cap))
     #p2 = threading.Thread(target=Display(procesamiento, fps, model, clases))
@@ -62,12 +62,14 @@ def run_detect(cap, model, clases, fps, procesamiento, tiempos=[], i=0):
     #p2.start()
 
     ret, frame = cap.read()
-    segundo_entre_registros = 1
-    segundos_reinicio_contador = 3
+    segundo_entre_registros = 5 * 60
+    segundos_reinicio_contador = 30 * 60
     columnas_indicador = {'id_camara':[], 'calles_camara':[], 'fecha':[], 'hora_inicio':[], 'hora_final':[], 'flujo_personas_oeste_este':[], 'flujo_personas_este_oeste':[]}
     df=pd.DataFrame(columnas_indicador)
     momento = datetime.datetime.now()
     momento = f'{momento.month}_{momento.day}_{momento.hour}_{momento.minute}'
+    if guardar_video_resultado:
+        video_writer = cv2.VideoWriter(dir_resultado, cv2.VideoWriter_fourcc(*'mp4v'), fps, (frame.shape[1], frame.shape[0]))
     
     if not procesamiento['solo_mostrar']:
         tareas = Objeto_Global(fps)
@@ -84,10 +86,13 @@ def run_detect(cap, model, clases, fps, procesamiento, tiempos=[], i=0):
             tareas.create_velocidades(frame, procesamiento['velocidades_por_zonas'], procesamiento['zonas_velocidades'], procesamiento['min_max_zonas'], procesamiento['guardar_videos_evento'])
 
     while cap.isOpened():
+    #while True:
         ret, frame = cap.read()
         #frame = cv2.resize(frame, (640, 640))
         if not ret:
             break
+            #cap = cv2.VideoCapture(r'rtsp://admin:Cafa2414$@10.0.10.182:554/0/profile2/media.smp')
+            #ret, frame = cap.read()
         # Perform detection
         ti = time.time()
         if procesamiento['solo_mostrar']:
@@ -98,18 +103,22 @@ def run_detect(cap, model, clases, fps, procesamiento, tiempos=[], i=0):
                 if i % int(fps * segundo_entre_registros) == 0:
                     df = guardar_xlsx_contador(df, tareas.objeto_Contadores.contadores[0])
                 if i % int(fps * segundos_reinicio_contador) == 0:
-                    df.to_csv(r'C:\Users\eitan\Pictures\comercio_ambulante_paseo_estacion_indicadores_transito_peatonal_cruz_verde.csv', index=False)
-                    #df.to_csv(r'C:\Users\admin\Desktop\archivo_generado\paseo_estacion_indicadores_transito_peatonal_cruz_verde' + momento + '.csv', index=False)
+                    #df.to_csv(r'C:\Users\eitan\Pictures\comercio_ambulante_paseo_estacion_indicadores_transito_peatonal_cruz_verde.csv', index=False)
+                    df.to_csv(r'C:\Users\admin\Desktop\archivo_generado\paseo_estacion_indicadores_transito_peatonal_cruz_verde' + momento + '.csv', index=False)
                     tareas.objeto_Contadores.contadores[0].reset()
         tiempos.append((time.time() - ti)*1000)
         i += 1
         #output_frame=frame
 
         # Display the frame with detections
-        cv2.imshow('Camara Paseo Estacion con analitica', output_frame)
+        if guardar_video_resultado:
+            video_writer.write(output_frame)
+            cv2.imwrite(dir_resultado[:-3] + 'jpg', frame)
+        if mostrar_video:
+            cv2.imshow('Camara Paseo Estacion con analitica', output_frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
-            df.to_csv(r'C:\Users\eitan\Pictures\comercio_ambulante_paseo_estacion_indicadores_transito_peatonal_cruz_verde.csv', index=False)
-            #df.to_csv(r'C:\Users\admin\Desktop\archivo_generado\paseo_estacion_indicadores_transito_peatonal_cruz_verde' + momento + '.csv', index=False)
+            #df.to_csv(r'C:\Users\eitan\Pictures\comercio_ambulante_paseo_estacion_indicadores_transito_peatonal_cruz_verde.csv', index=False)
+            df.to_csv(r'C:\Users\admin\Desktop\archivo_generado\paseo_estacion_indicadores_transito_peatonal_cruz_verde' + momento + '.csv', index=False)
             break
 
 def guardar_xlsx_contador(df, contador):
