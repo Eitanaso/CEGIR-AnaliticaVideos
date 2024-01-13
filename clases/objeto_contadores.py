@@ -2,6 +2,9 @@ import supervision as sv
 from general import create_labels
 from clases.line_counter_edit import Contador_Actualizado, Anotador_Linea_Actualizado
 
+from funciones.general import isin_polygon
+import numpy as np
+
 #--------------------------------------------------------------------------------------------------------------------
 # Creacion de la clase que se encarga de los contadores en un espacio
 # Por mayores dudas de las funciones, comunicarse con Eitan Hasson Arellano a traves del correo eitanhass@gmail.com
@@ -34,7 +37,7 @@ class Objeto_Contadores:
             lz = Contador_Actualizado(name='Contador', start = sv.Point(line[i][0][0], line[i][0][1]), end = sv.Point(line[i][1][0], line[i][1][1]))
             self.contadores.append(lz)
 
-    def create_line_zone_annotators(self, texto_in='N° per ↑', texto_out='N° per ↓'):
+    def create_line_zone_annotators(self, texto_in='N° cicl →', texto_out='N° cicl ←'): # ← → ↑ ↓
         for i in range(self.n_contadores):
             anotador_lz = Anotador_Linea_Actualizado(thickness=1, text_thickness=1, text_scale=0.75, color = sv.Color.blue(), text_color=sv.Color.white(), text_padding=1, text_offset=1,
                                            custom_in_text=texto_in, custom_out_text=texto_out)
@@ -42,6 +45,12 @@ class Objeto_Contadores:
         
     def anotar_frame(self, frame, detecciones, modelo):
         annotated_frame = frame
+        #try: 
+            #zona = np.array([(0, 480), (0, 213), (353, 480)]) # cam 1 entre vereda y calle
+            #zona = np.array([(0, 480), (0, 182), (189, 75), (388, 81), (445, 479)]) # cam 2 calle
+            #zona = np.array([(335, 480), (342, 271), (459, 272), (513, 480)]) # cam 2 entre vereda y calle
+            #detecciones = detecciones[isin_polygon(detecciones.xyxy, sv.PolygonZoneAnnotator(color=sv.Color(r=0, g=102, b=0), zone=sv.PolygonZone(zona, frame_resolution_wh=(frame.shape[1], frame.shape[0]), triggering_position=sv.Position.CENTER)).zone.mask)]
+        #except: None
         for i in range(self.n_contadores):
             detections_i = detecciones
             labels_i = create_labels(detections_i, modelo)

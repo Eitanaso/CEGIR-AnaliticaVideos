@@ -207,9 +207,19 @@ class Anotador_Linea_Actualizado(LineZoneAnnotator):
         w, h, _ = frame.shape
 
         in_text_x = int(w+80)
+        in_text_x = int(200)
+        in_text_x = int(20)
+
         in_text_y = int(20)
+        #in_text_y = int(400)
+
+
         out_text_x = int(w+80)
+        out_text_x = int(200)
+        out_text_x = int(20)
+
         out_text_y = int(in_text_y + out_text_height + 10)
+        #out_text_y = int(430)
 
         in_text_background_rect = Rect(
             x=in_text_x,
@@ -245,10 +255,10 @@ class Anotador_Linea_Actualizado(LineZoneAnnotator):
         image = cv2.cvtColor(frame.copy(), cv2.COLOR_BGR2RGB)
         pil_image = Image.fromarray(image)
 
-        font = ImageFont.truetype("C:\Windows\Fonts\\arial.ttf", 18)
+        font = ImageFont.truetype("C:\\Windows\\Fonts\\arial.ttf", 25)
         draw = ImageDraw.Draw(pil_image)
-        draw.text((in_text_x, in_text_y), in_text, font=font, align='left', fill='red')
-        draw.text((out_text_x, out_text_y), out_text, font=font, align='right', fill='red')
+        draw.text((in_text_x, in_text_y), in_text, font=font, align='left', fill='blue')
+        draw.text((out_text_x, out_text_y), out_text, font=font, align='right', fill='blue')
 
         image = np.asarray(pil_image)
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
