@@ -62,6 +62,8 @@ def run_detect(cap, model, clases, fps, procesamiento, tiempos=[], i=0, mostrar_
     #p2.start()
 
     ret, frame = cap.read()
+    frame = frame[60:-60, 240:-240]
+    frame = cv2.resize(frame, (720, 480))
     segundo_entre_registros = 5 * 60
     segundos_reinicio_contador = 30 * 60
     columnas_indicador = {'id_camara':[], 'calles_camara':[], 'fecha':[], 'hora_inicio':[], 'hora_final':[], 'flujo_personas_oeste_este':[], 'flujo_personas_este_oeste':[]}
@@ -88,12 +90,13 @@ def run_detect(cap, model, clases, fps, procesamiento, tiempos=[], i=0, mostrar_
     while cap.isOpened():
     #while True:
         ret, frame = cap.read()
-        #frame = cv2.resize(frame, (640, 640))
         if not ret:
             break
             #cap = cv2.VideoCapture(r'rtsp://admin:Cafa2414$@10.0.10.182:554/0/profile2/media.smp')
             #ret, frame = cap.read()
         # Perform detection
+        frame = frame[60:-60, 240:-240]
+        frame = cv2.resize(frame, (720, 480))
         ti = time.time()
         if procesamiento['solo_mostrar']:
             output_frame = frame
@@ -113,7 +116,8 @@ def run_detect(cap, model, clases, fps, procesamiento, tiempos=[], i=0, mostrar_
         # Display the frame with detections
         if guardar_video_resultado:
             video_writer.write(output_frame)
-            cv2.imwrite(dir_resultado[:-3] + 'jpg', frame)
+            #if (i-1) % 25 == 0:
+                #cv2.imwrite(dir_resultado[:-4] + '_' + str((i-1)//25) + '.jpg', frame)
         if mostrar_video:
             cv2.imshow('Camara Paseo Estacion con analitica', output_frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
