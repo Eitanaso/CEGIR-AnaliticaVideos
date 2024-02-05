@@ -26,6 +26,9 @@ def centro(bbox: np.ndarray, def_centro: str = 'centro') -> np.ndarray:
   elif def_centro == 'centro-sup':
     x_c = int((bbox[0] + bbox[2]) / 2)
     y_c = int(min(bbox[1], bbox[3]))
+  elif def_centro == 'centro-inf':
+    x_c = int((bbox[0] + bbox[2]) / 2)
+    y_c = int(max(bbox[1], bbox[3]))
   return np.array([x_c, y_c])
 
 # Funcion para revisar si las detecciones estan en el poligono
