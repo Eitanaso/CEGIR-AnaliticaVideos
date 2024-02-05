@@ -3,15 +3,17 @@ import supervision as sv
 import cv2
 from collections import deque
     
+from funciones.general import isin_polygon
+import numpy as np
 
 class Objeto_Trayectorias:
     def __init__(self, guardar_evento):
         self.anteriores = {}
         self.ult_angulo = {}
         self.fps = 25
-        self.box_annotator = sv.BoxAnnotator(color=sv.Color.green(), thickness=1, text_thickness=1, text_scale=0.3)
-        self.box_annotator2 = sv.BoxAnnotator(color=sv.Color.blue(), thickness=1, text_thickness=1, text_scale=0.3)
-        self.box_annotator3 = sv.BoxAnnotator(color=sv.Color.red(), thickness=1, text_thickness=1, text_scale=0.3)
+        self.box_annotator = sv.BoxAnnotator(color=sv.Color.green(), text_color=sv.Color.white(), thickness=1, text_thickness=1, text_scale=0.3)
+        self.box_annotator2 = sv.BoxAnnotator(color=sv.Color.blue(), text_color=sv.Color.white(), thickness=1, text_thickness=1, text_scale=0.3)
+        self.box_annotator3 = sv.BoxAnnotator(color=sv.Color.red(), text_color=sv.Color.white(), thickness=1, text_thickness=1, text_scale=0.3)
         self.mostrar_bajos = False
         self.mostrar_medios = False
         self.mostrar_altos = True
@@ -35,6 +37,10 @@ class Objeto_Trayectorias:
     def anotar_frame(self, frame, detecciones, modelo):
         annotated_frame = frame.copy()
         self.frames_preproc.append(frame)
+        #try: 
+            #zona = np.array([(1489, 373), (1407, 687), (469, 279), (167, 650), (1701, 1007), (1871, 349)])
+            #detecciones = detecciones[isin_polygon(detecciones.xyxy, sv.PolygonZoneAnnotator(color=sv.Color(r=0, g=255, b=0), zone=sv.PolygonZone(zona, frame_resolution_wh=(frame.shape[1], frame.shape[0]), triggering_position=sv.Position.CENTER)).zone.mask)]
+        #except: None
 
         try:
             self.anteriores = guardar_centros_anteriores_v2(self.anteriores, detecciones.tracker_id, detecciones.xyxy)
@@ -64,6 +70,7 @@ class Objeto_Trayectorias:
             if self.mostrar_altos:
                 labels_mal = [
                     f"{tracker_id}, Ang: {get_angulo_label(self.ult_angulo, tracker_id)}"
+                    #'CORRIENDO'
                 for bbox, _, confidence, class_id, tracker_id
                 in detections_mal
                 ]
@@ -90,6 +97,7 @@ class Objeto_Trayectorias:
             if self.mostrar_medios:
                 labels_medio = [
                     f"{tracker_id}, Ang: {get_angulo_label(self.ult_angulo, tracker_id)}"
+                    #'CORRIENDO'
                 for bbox, _, confidence, class_id, tracker_id
                 in detections_medio
                 ]

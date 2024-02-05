@@ -168,8 +168,8 @@ class Objeto_Velocidades:
 
             labels_i = []
             for bbox, _, confidence, class_id, tracker_id in detections_i:
-                labels_i.append(f"{self.ult_vel[tracker_id]:0.2f} p/s")
-                #labels_i.append(f"CORRIENDO")
+                #labels_i.append(f"{self.ult_vel[tracker_id]:0.2f} p/s")
+                labels_i.append(f"CORRIENDO")
 
             if (len(labels_i) >= 1) and (self.ocurre_evento == False):
                 self.ocurre_evento = True 
