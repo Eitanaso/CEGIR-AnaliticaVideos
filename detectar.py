@@ -62,8 +62,8 @@ def run_detect(cap, model, clases, fps, procesamiento, tiempos=[], i=0, mostrar_
     #p2.start()
 
     ret, frame = cap.read()
-    frame = frame[60:-60, 240:-240]
-    frame = cv2.resize(frame, (720, 480))
+    #frame = frame[60:-60, 240:-240]
+    #frame = cv2.resize(frame, (720, 480))
     segundo_entre_registros = 5 * 60
     segundos_reinicio_contador = 30 * 60
     columnas_indicador = {'id_camara':[], 'calles_camara':[], 'fecha':[], 'hora_inicio':[], 'hora_final':[], 'flujo_personas_oeste_este':[], 'flujo_personas_este_oeste':[]}
@@ -85,7 +85,8 @@ def run_detect(cap, model, clases, fps, procesamiento, tiempos=[], i=0, mostrar_
         if procesamiento['mostrar_trayectorias']:
             tareas.create_trayectorias(frame, procesamiento['guardar_videos_evento'])
         if procesamiento['mostrar_velocidades']:
-            tareas.create_velocidades(frame, procesamiento['velocidades_por_zonas'], procesamiento['zonas_velocidades'], procesamiento['min_max_zonas'], procesamiento['guardar_videos_evento'])
+            tareas.create_velocidades(frame, procesamiento['velocidades_por_zonas'], procesamiento['zonas_velocidades'], 
+                                      procesamiento['min_max_zonas'], procesamiento['guardar_videos_evento'], procesamiento['guardar_info_corriendo'], procesamiento['dixi_info_corriendo'])
 
     while cap.isOpened():
     #while True:
@@ -95,8 +96,8 @@ def run_detect(cap, model, clases, fps, procesamiento, tiempos=[], i=0, mostrar_
             #cap = cv2.VideoCapture(r'rtsp://admin:Cafa2414$@10.0.10.182:554/0/profile2/media.smp')
             #ret, frame = cap.read()
         # Perform detection
-        frame = frame[60:-60, 240:-240]
-        frame = cv2.resize(frame, (720, 480))
+        #frame = frame[60:-60, 240:-240]
+        #frame = cv2.resize(frame, (720, 480))
         ti = time.time()
         if procesamiento['solo_mostrar']:
             output_frame = frame
