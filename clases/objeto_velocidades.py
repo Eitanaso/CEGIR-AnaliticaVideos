@@ -4,9 +4,12 @@ import numpy as np
 from funciones.general import isin_polygon
 from collections import deque
 import cv2
+import os
+import datetime
+import pandas as pd
 
 class Objeto_Velocidades:
-    def __init__(self, guardar_evento):
+    def __init__(self, guardar_evento, guardar_info_corriendo):
         self.anteriores = {}
         self.ult_mov_x = {}
         self.ult_mov_y = {}
@@ -33,6 +36,12 @@ class Objeto_Velocidades:
         self.i = 0
         self.video_writer_pre = None
         self.video_writer_post = None
+
+        self.guardar_info_corriendo = guardar_info_corriendo
+        self.dixi_info = {}
+        self.lista_id_corriendo = []
+        self.lista_id_corriendo_prev = []
+        self.gente_corriendo = 0
     
     def anotar_frame(self, frame, detecciones, modelo):
         annotated_frame = frame
@@ -106,9 +115,35 @@ class Objeto_Velocidades:
             #anotador_pz_mal.center = sv.Point(centros_zonas[i][0], centros_zonas[i][1])
             self.anotador_zonas.append(anotador_pz)
     
+    def agregar_dixi_info_corriendo(self, info):
+        self.dixi_info = info.copy()
+        path = self.dixi_info['dir_guardado']
+        if not os.path.exists(path):
+            os.makedirs(path)
+            os.makedirs(path + 'reportes_diarios\\')
+            os.makedirs(path + 'imagenes_evento\\')
+
     def anotar_frame_zonas(self, frame, detecciones, modelo):
         annotated_frame = frame.copy()
         self.frames_preproc.append(frame)
+        
+        if self.guardar_info_corriendo:
+
+            path = self.dixi_info['dir_guardado']
+            fecha_hora = datetime.datetime.now()
+            year = fecha_hora.year
+            month = fecha_hora.month
+            day = fecha_hora.day
+
+            try:
+                df = pd.read_csv(path + f'reportes_diarios\\{year}_{month}_{day}.csv')
+            except:
+                df = pd.DataFrame({'ID Cam': [], 'Nombre': [], 'Hora': [], 'Personas corriendo': []})
+                df.to_csv(path + f'reportes_diarios\\{year}_{month}_{day}.csv', index=False)
+                df = pd.read_csv(path + f'reportes_diarios\\{year}_{month}_{day}.csv')
+
+            if not os.path.exists(path + f'imagenes_evento\\{year}_{month}_{day}\\'):
+                os.makedirs(path + f'imagenes_evento\\{year}_{month}_{day}\\')
 
         try:
             self.anteriores = guardar_centros_anteriores_v3(self.anteriores, detecciones.tracker_id, detecciones.xyxy, self.ult_mov_x, self.ult_mov_y, self.fps, def_centro=self.calc_centro)
@@ -170,6 +205,9 @@ class Objeto_Velocidades:
             for bbox, _, confidence, class_id, tracker_id in detections_i:
                 #labels_i.append(f"{self.ult_vel[tracker_id]:0.2f} p/s")
                 labels_i.append(f"CORRIENDO")
+                if tracker_id not in self.lista_id_corriendo:
+                    self.lista_id_corriendo.append(tracker_id)
+
 
             if (len(labels_i) >= 1) and (self.ocurre_evento == False):
                 self.ocurre_evento = True 
@@ -179,6 +217,22 @@ class Objeto_Velocidades:
                 detections=detections_i,
                 labels=labels_i
                 )
+            
+            diff = 0
+            for c_id in self.lista_id_corriendo:
+                if c_id not in self.lista_id_corriendo_prev:
+                    diff += 1
+            self.lista_id_corriendo_prev = self.lista_id_corriendo.copy()
+            
+            #if self.guardar_info_corriendo and (len(labels_i) > self.gente_corriendo):
+            if self.guardar_info_corriendo and ((diff) > self.gente_corriendo):
+                nueva_fila = {'ID Cam': self.dixi_info['ID Cam'], 'Nombre': self.dixi_info['Nombre'], 
+                              'Hora': f'{fecha_hora.hour}_{fecha_hora.minute}_{fecha_hora.second}', 'Personas corriendo': len(labels_i)}
+                df = pd.concat([df, pd.DataFrame(nueva_fila, index=[0])], ignore_index=True)
+                df.to_csv(path + f'reportes_diarios\\{year}_{month}_{day}.csv', index=False)
+                cv2.imwrite(path + f'imagenes_evento\\{year}_{month}_{day}\\{fecha_hora.hour}_{fecha_hora.minute}_{fecha_hora.second}.jpg', annotated_frame)
+            #self.gente_corriendo = len(labels_i)
+            self.gente_corriendo = diff
             
             #annotated_frame = self.anotador_zonas[i].annotate(annotated_frame)
 

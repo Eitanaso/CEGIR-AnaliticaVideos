@@ -81,14 +81,16 @@ class Objeto_Global:
         self.objeto_Trayectorias = Objeto_Trayectorias(guardar_evento)
         self.objeto_Trayectorias.frame_wh(frame)
     
-    def create_velocidades(self, frame, por_zonas, zonas, min_max, guardar_evento):
+    def create_velocidades(self, frame, por_zonas, zonas, min_max, guardar_evento, guardar_info_corriendo, dixi_info_corriendo):
         self.velocidades = True
         self.velocidad_por_zonas = por_zonas
-        self.objeto_Velocidades = Objeto_Velocidades(guardar_evento)
+        self.objeto_Velocidades = Objeto_Velocidades(guardar_evento, guardar_info_corriendo)
         if por_zonas:
             self.objeto_Velocidades.frame_wh(frame)
             self.objeto_Velocidades.create_polygone_zones(zonas, min_max)
             self.objeto_Velocidades.create_polygone_zone_annotators()
+        if guardar_info_corriendo:
+            self.objeto_Velocidades.agregar_dixi_info_corriendo(dixi_info_corriendo)
 
 
 
