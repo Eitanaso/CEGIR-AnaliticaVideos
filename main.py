@@ -90,19 +90,30 @@ procesamiento = {'solo_mostrar': False, 'solo_detector': False, 'mostrar_contado
                  'mostrar_velocidades': False, 'velocidades_por_zonas': False, 'zonas_velocidades': [], 'min_max_zonas': [], 
                  'guardar_videos_evento': False, 'guardar_info_corriendo': False, 'dixi_info_corriendo': {}}
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------
-rtsp_url = 'D:\\Descargas\\videos_casos_uso_nuevos_cegir\\(182) Paseo Estacion Hanwha - Camara - 01-2024-01-07_17h15min00s000ms_corte_corriendo.mp4'
-procesamiento['mostrar_velocidades'] = True
-procesamiento['velocidades_por_zonas'] = True
-procesamiento['zonas_velocidades'] = [[(316, 480), (232, 428), (563, 199), (720, 208), (720, 480)], [(232, 428), (563, 199), (457, 160), (74, 300)], [(74, 300), (457, 160), (352, 87), (0, 195)],]
-procesamiento['min_max_zonas'] = [[0, 90], [0, 85], [0, 80]]
-rtsp_url = 'D:\\Descargas\\videos_casos_uso_nuevos_cegir\\(182) Paseo Estacion Hanwha - Camara - 01-2024-01-07_21h56min40s000ms.mp4'
-procesamiento['mostrar_velocidades'] = True
-procesamiento['velocidades_por_zonas'] = True
-procesamiento['zonas_velocidades'] = [[(316, 480), (232, 428), (563, 199), (720, 208), (720, 480)], [(232, 428), (563, 199), (457, 160), (74, 300)], [(74, 300), (457, 160), (352, 87), (0, 195)],]
-procesamiento['min_max_zonas'] = [[0, 100], [0, 90], [0, 85]]
-procesamiento['guardar_info_corriendo'] = True
-procesamiento['dixi_info_corriendo'] = {'ID Cam': '182-1', 'Nombre': 'Paseo Estacion', 'dir_guardado': 'D:\\Descargas\\info_corriendo\\'}
-
+#rtsp_url = 'D:\\Descargas\\videos_casos_uso_nuevos_cegir\\(182) Paseo Estacion Hanwha - Camara - 01-2024-01-07_17h15min00s000ms_corte_corriendo.mp4'
+#procesamiento['mostrar_velocidades'] = True
+#procesamiento['velocidades_por_zonas'] = True
+#procesamiento['zonas_velocidades'] = [[(316, 480), (232, 428), (563, 199), (720, 208), (720, 480)], [(232, 428), (563, 199), (457, 160), (74, 300)], [(74, 300), (457, 160), (352, 87), (0, 195)],]
+#procesamiento['min_max_zonas'] = [[0, 90], [0, 85], [0, 80]]
+#rtsp_url = 'D:\\Descargas\\videos_casos_uso_nuevos_cegir\\(182) Paseo Estacion Hanwha - Camara - 01-2024-01-07_21h56min40s000ms.mp4'
+#procesamiento['mostrar_velocidades'] = True
+#procesamiento['velocidades_por_zonas'] = True
+#procesamiento['zonas_velocidades'] = [[(316, 480), (232, 428), (563, 199), (720, 208), (720, 480)], [(232, 428), (563, 199), (457, 160), (74, 300)], [(74, 300), (457, 160), (352, 87), (0, 195)],]
+#procesamiento['min_max_zonas'] = [[0, 100], [0, 90], [0, 85]]
+#procesamiento['guardar_info_corriendo'] = True
+#procesamiento['dixi_info_corriendo'] = {'ID Cam': '182-1', 'Nombre': 'Paseo Estacion', 'dir_guardado': 'D:\\Descargas\\info_corriendo\\'}
+#-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+SOURCE_VIDEO_PATH = r'C:\Users\eitan\Pictures\comercio_ambulante_paseo_estacion.mp4'
+procesamiento['mostrar_contadores'] = True
+procesamiento['lineas_contadores'] = [[(160, 334), (468, 185)],]
+procesamiento['texto_contadores'] = [['Per ab-arr', 'Per arr-ab'],]
+procesamiento['pos_texto_contadores'] = [[(50, 280), (50, 310)],]
+procesamiento['color_contadores'] = [(0, 100, 0), ] # RGB
+procesamiento['guardar_archivo_contador'] = True
+procesamiento['dir_csv_contador'] = 'C:\\Users\\eitan\\Desktop\\tests\\contador.csv'
+procesamiento['periodicidad_contador'] = 10
+procesamiento['fecha_video'] = '10_12_2023'
+procesamiento['hora_video'] = '12_00_00'
 
 
 

@@ -64,9 +64,10 @@ def run_detect(cap, model, clases, fps, procesamiento, tiempos=[], i=0, mostrar_
     ret, frame = cap.read()
     #frame = frame[60:-60, 240:-240]
     #frame = cv2.resize(frame, (720, 480))
-    segundo_entre_registros = 5 * 60
-    segundos_reinicio_contador = 30 * 60
-    columnas_indicador = {'id_camara':[], 'calles_camara':[], 'fecha':[], 'hora_inicio':[], 'hora_final':[], 'flujo_personas_oeste_este':[], 'flujo_personas_este_oeste':[]}
+    segundo_entre_registros = procesamiento['periodicidad_contador']
+    segundos_reinicio_contador = procesamiento['periodicidad_contador']
+    columnas_indicador = {'id_camara':[], 'calles_camara':[], 'fecha':[], 'hora':[], #'hora_final':[], 
+                          procesamiento['texto_contadores'][0][0]:[], procesamiento['texto_contadores'][0][1]:[]}
     df=pd.DataFrame(columnas_indicador)
     momento = datetime.datetime.now()
     momento = f'{momento.month}_{momento.day}_{momento.hour}_{momento.minute}'
@@ -81,7 +82,8 @@ def run_detect(cap, model, clases, fps, procesamiento, tiempos=[], i=0, mostrar_
         if procesamiento['mostrar_estacionados']:
             tareas.create_estacionados(frame, procesamiento['zonas_estacionados'], procesamiento['centros_zonas_estacionados'])
         if procesamiento['mostrar_contadores']:
-            tareas.create_contadores(procesamiento['lineas_contadores'])#, procesamiento['guardar_archivo_contador'])
+            tareas.create_contadores(procesamiento['lineas_contadores'], procesamiento['texto_contadores'], procesamiento['pos_texto_contadores'],
+                                     procesamiento['color_contadores'],)#, procesamiento['guardar_archivo_contador'])
         if procesamiento['mostrar_trayectorias']:
             tareas.create_trayectorias(frame, procesamiento['guardar_videos_evento'])
         if procesamiento['mostrar_velocidades']:
@@ -105,10 +107,11 @@ def run_detect(cap, model, clases, fps, procesamiento, tiempos=[], i=0, mostrar_
             output_frame = detect(frame, model, clases, tareas)
             if procesamiento['guardar_archivo_contador']:
                 if i % int(fps * segundo_entre_registros) == 0:
-                    df = guardar_xlsx_contador(df, tareas.objeto_Contadores.contadores[0])
+                    df = guardar_xlsx_contador(df, tareas.objeto_Contadores.contadores[0], procesamiento['texto_contadores'][0])
                 if i % int(fps * segundos_reinicio_contador) == 0:
+                    df.to_csv(procesamiento['dir_csv_contador'], index=False)
                     #df.to_csv(r'C:\Users\eitan\Pictures\comercio_ambulante_paseo_estacion_indicadores_transito_peatonal_cruz_verde.csv', index=False)
-                    df.to_csv(r'C:\Users\admin\Desktop\archivo_generado\paseo_estacion_indicadores_transito_peatonal_cruz_verde' + momento + '.csv', index=False)
+                    #df.to_csv(r'C:\Users\admin\Desktop\archivo_generado\paseo_estacion_indicadores_transito_peatonal_cruz_verde' + momento + '.csv', index=False)
                     tareas.objeto_Contadores.contadores[0].reset()
         tiempos.append((time.time() - ti)*1000)
         i += 1
@@ -122,11 +125,13 @@ def run_detect(cap, model, clases, fps, procesamiento, tiempos=[], i=0, mostrar_
         if mostrar_video:
             cv2.imshow('Camara Paseo Estacion con analitica', output_frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
-            #df.to_csv(r'C:\Users\eitan\Pictures\comercio_ambulante_paseo_estacion_indicadores_transito_peatonal_cruz_verde.csv', index=False)
-            df.to_csv(r'C:\Users\admin\Desktop\archivo_generado\paseo_estacion_indicadores_transito_peatonal_cruz_verde' + momento + '.csv', index=False)
+            if procesamiento['guardar_archivo_contador']:
+                df.to_csv(procesamiento['dir_csv_contador'], index=False)
+                #df.to_csv(r'C:\Users\eitan\Pictures\comercio_ambulante_paseo_estacion_indicadores_transito_peatonal_cruz_verde.csv', index=False)
+                #df.to_csv(r'C:\Users\admin\Desktop\archivo_generado\paseo_estacion_indicadores_transito_peatonal_cruz_verde' + momento + '.csv', index=False)
             break
 
-def guardar_xlsx_contador(df, contador):
+def guardar_xlsx_contador(df, contador, texto_contadores):
     id_camara = '1'
     calles_camara = 'paseo_estacion_cruz_verde'
     fecha_hora = datetime.datetime.now()
@@ -135,6 +140,7 @@ def guardar_xlsx_contador(df, contador):
     hora_final = '-'
     flujo_personas_oeste_este = contador.in_count
     flujo_personas_este_oeste = contador.out_count
-    nueva_fila = {'id_camara':id_camara, 'calles_camara':calles_camara, 'fecha':fecha, 'hora_inicio':hora_inicio, 'hora_final':hora_final, 'flujo_personas_oeste_este':flujo_personas_oeste_este, 'flujo_personas_este_oeste':flujo_personas_este_oeste}
+    nueva_fila = {'id_camara':id_camara, 'calles_camara':calles_camara, 'fecha':fecha, 'hora':hora_inicio, #'hora_final':hora_final, 
+                  texto_contadores[0]:flujo_personas_oeste_este, texto_contadores[1]:flujo_personas_este_oeste}
     df = pd.concat([df, pd.DataFrame(nueva_fila, index=[0])], ignore_index=True)
     return df
