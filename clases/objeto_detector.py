@@ -3,7 +3,7 @@ from general import create_labels
 import cv2
 from scipy.stats import mode
 import numpy as np
-from sklearn.cluster import KMeans
+#from sklearn.cluster import KMeans
 
 #--------------------------------------------------------------------------------------------------------------------
 # Creacion de la clase que se encarga solo de las detecciones en un video

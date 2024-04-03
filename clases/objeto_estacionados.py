@@ -66,7 +66,8 @@ class Objeto_Estacionados:
             except:
                 detections_i = detecciones
                 detections_i2 = detecciones
-            self.dixi_a1[i] = save_detections_in_area_dixi(self.dixi_a1[i], detections_i, self.seg_det * self.fps)
+            # siguiente linea sirve para la gente estacionada, guardando tracking
+            #self.dixi_a1[i] = save_detections_in_area_dixi(self.dixi_a1[i], detections_i, self.seg_det * self.fps)
             try: 
                 detections_i2 = detections_i[ ~ det_in_same_area(detections_i.tracker_id, self.dixi_a1[i], self.seg_det * self.fps, self.tpo_perdida)]
                 detections_i = detections_i[det_in_same_area(detections_i.tracker_id, self.dixi_a1[i], self.seg_det * self.fps, self.tpo_perdida)]
@@ -81,7 +82,7 @@ class Objeto_Estacionados:
             #detections_i = self.all_dets[i]
             if len(labels_i):
                 #annotated_frame = self.anotador_zonas_mal[i].annotate(annotated_frame, 'OCUPADO')
-                annotated_frame = self.anotador_zonas_mal[i].annotate(annotated_frame, f'{len(labels_i)}')
+                annotated_frame = self.anotador_zonas_mal[i].annotate(annotated_frame, f'N per: {len(labels_i)}')
                 '''annotated_frame = self.anotador_zonas_mal[i].annotate(annotated_frame, f'N  per: {len(labels_i)}')
 
                 image = np.zeros(annotated_frame.shape, dtype=np.uint8)
@@ -94,7 +95,8 @@ class Objeto_Estacionados:
                 image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
                 annotated_frame = image'''
             else:
-                annotated_frame = self.anotador_zonas_bien[i].annotate(annotated_frame, 'NO OCUPADO')
+                #annotated_frame = self.anotador_zonas_bien[i].annotate(annotated_frame, 'NO OCUPADO')
+                annotated_frame = self.anotador_zonas_bien[i].annotate(annotated_frame, 'N per: 0')
                 '''annotated_frame = self.anotador_zonas_bien[i].annotate(annotated_frame, 'N  per: 0')
 
                 image = np.zeros(annotated_frame.shape, dtype=np.uint8)
