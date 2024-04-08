@@ -17,9 +17,22 @@ segs_frame = 3
 fps = 25
 
 zonas = [
-        [(10, 230), (400, 80), (718, 242), (718, 478), (300, 478)],
+        #[(10, 230), (400, 80), (718, 242), (718, 478), (300, 478)],
 ]
 centros_zonas = [(50, 30)]
+
+
+
+def click_event(event, x, y, flags, param):
+    if event == cv2.EVENT_LBUTTONDOWN:
+        # Mostrar el punto seleccionado
+        cv2.circle(img, (x, y), 5, (0, 0, 255), -1)
+        # Mostrar las coordenadas del punto
+        print("Coordenadas del punto:", x, y)
+        # Guardar las coordenadas en una lista
+        puntos.append((x, y))
+        # Refrescar la imagen
+        cv2.imshow('image', img)
 
 def main(rstp_url, model, i=0):
     # datetime object containing current date and time
@@ -31,7 +44,17 @@ def main(rstp_url, model, i=0):
 
     cap = get_video(rstp_url)
     model = get_model(model)
-    _, output_frame = cap.read()
+    global img
+    _, img = cap.read()
+    cv2.imshow('frame', img)
+    global puntos
+    puntos = []
+    cv2.setMouseCallback('frame', click_event)
+    while True:
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            zonas.append(puntos)
+            break
+    cv2.destroyAllWindows()
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:

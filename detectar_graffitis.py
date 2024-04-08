@@ -39,6 +39,7 @@ def detect(frame, model, selected_classes):
     objeto_detector = Objeto_Detector()
     objeto_detector.create_box_annotator()
     annotated_frame = objeto_detector.anotar_frame(annotated_frame, detections, model)
+    annotated_frame = cv2.resize(annotated_frame, (720, 480))
     '''while True:
         #annotated_frame = cv2.resize(annotated_frame, (720, 480))
         #annotated_frame = cv2.resize(annotated_frame, (1080, 720))
@@ -46,7 +47,7 @@ def detect(frame, model, selected_classes):
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break'''
 
-    return  annotated_frame
+    return  annotated_frame, detections
 
 #if __name__ == '__main__':
 
