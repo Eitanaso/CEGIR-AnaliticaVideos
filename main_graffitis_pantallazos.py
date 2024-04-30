@@ -19,7 +19,7 @@ import cv2
 MODEL = "yolov8_detector_graffitis.pt"
 #MODEL = 'yolov8x.pt'
 selected_classes = 0
-segs_frame = 10
+segs_frame = 5
 fps = 25
 
 def click_event(event, x, y, flags, param):
@@ -62,6 +62,7 @@ def main(model, i=0):
     bbox = (puntos[0][0], puntos[0][1],puntos[1][0],puntos[1][1])
     #while cap.isOpened():
     df=pd.DataFrame({'Hora Deteccion':[], 'Cantidad Detectado':[]})
+    prev_det = 0
     while True:
         #ret, frame = cap.read()
         #bbox = (100, 100, 700, 800)
@@ -73,6 +74,9 @@ def main(model, i=0):
         #if i % int(fps * segs_frame) == 0:
         output_frame, dets = detect(frame, model, selected_classes)
         print(len(dets))
+        if prev_det < len(dets):
+            print('Nuevo graffiti')
+        prev_det = len(dets)
         cv2.imshow('Camara Paseo Estacion con analitica', output_frame)
         now = datetime.now()
         dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
