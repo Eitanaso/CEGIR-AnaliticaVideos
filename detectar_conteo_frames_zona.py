@@ -48,7 +48,7 @@ def detect(frame, model, selected_classes, zonas, centros_zonas):
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break'''
 
-    return  annotated_frame
+    return  annotated_frame, detections
 
 #if __name__ == '__main__':
 

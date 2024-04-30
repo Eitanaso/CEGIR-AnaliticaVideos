@@ -1,5 +1,5 @@
 import argparse
-from detectar_conteo_frames_zona import detect
+from maraton.detectar_conteo_maraton import detect
 from general import get_video, get_model
 from clases.objeto_global import Objeto_Global
 
@@ -7,14 +7,21 @@ from datetime import datetime
 
 import cv2
 
-SOURCE_VIDEO_PATH = 'c:\\Users\\Analitica2\\Desktop\\test\\comercio_ambulante_paseo_estacion.mp4'
-SOURCE_VIDEO_PATH = 'C:\\Users\\eitan\\Desktop\\cosas CEGIR\\maraton\\maraton2.mp4'
+import pyscreenshot as ImageGrab
+import time
+import numpy as np
+import pandas as pd
+
+from maraton.objeto_maraton import Objeto_Estacionados
+import supervision as sv
+
+SOURCE_VIDEO_PATH = 'C:\\Users\\eitan\\Desktop\\cosas CEGIR\\maraton\\maraton6.1.mp4'
 rtsp_url = SOURCE_VIDEO_PATH
 #MODEL = "yolov8_detector_graffitis.pt"
 MODEL = 'yolov8x.pt'
 #MODEL = 'yolo_4158imgs_augment_30brillo.pt'
 selected_classes = 0
-segs_frame = 3
+segs_frame = 0.15
 fps = 25
 
 zonas = [
@@ -45,6 +52,9 @@ def main(rstp_url, model, i=0):
 
     cap = get_video(rstp_url)
     model = get_model(model)
+    _, output_frame = cap.read()
+    starttime = time.monotonic()
+    print(starttime)
     global img
     _, img = cap.read()
     cv2.imshow('frame', img)
@@ -56,16 +66,39 @@ def main(rstp_url, model, i=0):
             zonas.append(puntos)
             break
     cv2.destroyAllWindows()
+
+    #while cap.isOpened():
+    df=pd.DataFrame({'Hora Deteccion':[], 'Cantidad Detectado':[]})
+    objeto_estacionados = Objeto_Estacionados()
+    objeto_estacionados.frame_wh(output_frame)
+    objeto_estacionados.create_polygone_zones(zonas)
+    objeto_estacionados.create_polygone_zone_annotators(centros_zonas)
+    byte_tracker = sv.ByteTrack(track_thresh = 0.15, 
+                                         track_buffer = int(1/segs_frame), 
+                                         match_thresh = 0.8, 
+                                         frame_rate = int(1/segs_frame)
+                                         )
+    
+    video_writer = cv2.VideoWriter('C:\\Users\\eitan\\Desktop\\cosas CEGIR\\maraton\\maraton_resultado.mp4', cv2.VideoWriter_fourcc(*'mp4v'), int(1/segs_frame), (output_frame.shape[1], output_frame.shape[0]))
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
             break
         if i % int(fps * segs_frame) == 0:
-            output_frame, _ = detect(frame, model, selected_classes, zonas, centros_zonas)
+            output_frame, conteo_total = detect(frame, model, selected_classes, zonas, centros_zonas, objeto_estacionados, byte_tracker)
+            print(conteo_total)
             cv2.imshow('Camara Paseo Estacion con analitica', output_frame)
+            video_writer.write(output_frame)
+        now = datetime.now()
+        dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+        nueva_fila = {'Hora Deteccion':dt_string, 'Cantidad Detectado':conteo_total}
+        df = pd.concat([df, pd.DataFrame(nueva_fila, index=[0])], ignore_index=True)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
         i += 1
+        #time.sleep(segs_frame)# - ((time.monotonic() - starttime) % 60.0))
+
+    df.to_csv('C:\\Users\\eitan\\Desktop\\cosas CEGIR\\maraton\\maraton.csv', index=False)
 
     now = datetime.now()
 
