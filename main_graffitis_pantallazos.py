@@ -7,6 +7,8 @@ from datetime import datetime
 import time
 import numpy as np
 
+import json
+
 from PIL import Image
 import pyscreenshot as ImageGrab
 
@@ -73,8 +75,13 @@ def main(model, i=0):
             #break
         #if i % int(fps * segs_frame) == 0:
         output_frame, dets = detect(frame, model, selected_classes)
-        print(len(dets))
-        if prev_det < len(dets):
+        #print(len(dets))
+        if (prev_det == 0) and (prev_det < len(dets)):
+            momento = datetime.now().strftime("%d_%m_%Y %H_%M_%S")
+            cv2.imwrite(f'c:\\Users\\eitan\\Desktop\\cosas CEGIR\\datos_graffiti\\{momento}.jpg', output_frame)
+            datos = {'fecha': momento.split(' ')[0], 'hora': momento.split(' ')[1], 'graffiti_detectado': True, 'cantidad_detectada': len(dets)}
+            with open(f'c:\\Users\\eitan\\Desktop\\cosas CEGIR\\datos_graffiti\\{momento}.json', 'w') as f:
+                json.dump(datos, f)
             print('Nuevo graffiti')
         prev_det = len(dets)
         cv2.imshow('Camara Paseo Estacion con analitica', output_frame)
@@ -87,7 +94,7 @@ def main(model, i=0):
         i += 1
         time.sleep(segs_frame)# - ((time.monotonic() - starttime) % 60.0))
 
-    df.to_csv('C:\\Users\\Analitica2\\Desktop\\codigo_funcional\\graffitis.csv', index=False)
+    #df.to_csv('C:\\Users\\Analitica2\\Desktop\\codigo_funcional\\graffitis.csv', index=False)
 
     now = datetime.now()
 
