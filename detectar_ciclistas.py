@@ -41,7 +41,7 @@ def detect(frame, model, selected_classes, zonas, centros_zonas):
     #objeto_detector.create_box_annotator()
     #annotated_frame = objeto_detector.anotar_frame(annotated_frame, detections, model)
 
-    objeto_estacionados = Objeto_Estacionados('graf')
+    objeto_estacionados = Objeto_Estacionados('cicl')
     objeto_estacionados.frame_wh(annotated_frame)
     objeto_estacionados.create_polygone_zones(zonas)
     objeto_estacionados.create_polygone_zone_annotators(centros_zonas)
