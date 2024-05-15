@@ -14,7 +14,8 @@ import cv2
 #--------------------------------------------------------------------------------------------------------------------
 
 class Objeto_Estacionados:
-    def __init__(self):
+    def __init__(self, nombre):
+        self.nombre = nombre
         self.n_zonas = 0
         self.zonas = []
         self.anotador_zonas_bien = []
@@ -82,7 +83,7 @@ class Objeto_Estacionados:
             #detections_i = self.all_dets[i]
             if len(labels_i):
                 #annotated_frame = self.anotador_zonas_mal[i].annotate(annotated_frame, 'OCUPADO')
-                annotated_frame = self.anotador_zonas_mal[i].annotate(annotated_frame, f'N per: {len(labels_i)}')
+                annotated_frame = self.anotador_zonas_mal[i].annotate(annotated_frame, f'N {self.nombre}: {len(labels_i)}')
                 '''annotated_frame = self.anotador_zonas_mal[i].annotate(annotated_frame, f'N  per: {len(labels_i)}')
 
                 image = np.zeros(annotated_frame.shape, dtype=np.uint8)
@@ -96,7 +97,7 @@ class Objeto_Estacionados:
                 annotated_frame = image'''
             else:
                 #annotated_frame = self.anotador_zonas_bien[i].annotate(annotated_frame, 'NO OCUPADO')
-                annotated_frame = self.anotador_zonas_bien[i].annotate(annotated_frame, 'N per: 0')
+                annotated_frame = self.anotador_zonas_bien[i].annotate(annotated_frame, f'N {self.nombre}: 0')
                 '''annotated_frame = self.anotador_zonas_bien[i].annotate(annotated_frame, 'N  per: 0')
 
                 image = np.zeros(annotated_frame.shape, dtype=np.uint8)
