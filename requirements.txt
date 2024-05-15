@@ -1,0 +1,10 @@
+#--find-links https://download.pytorch.org/whl/torch_stable.html
+#torch==2.1.2+cu118
+#torchvision==2.1.2+cu118
+AWSIoTPythonSDK==1.5.4 
+pytz==2024.1
+boto3
+opencv-python==4.9.0.80
+supervision==0.17.1
+ultralytics==8.0.227
+pyscreenshot==3.1

@@ -1,5 +1,5 @@
 import argparse
-from detectar_graffitis import detect
+from detectar_ciclistas import detect
 from general import get_video, get_model
 from clases.objeto_global import Objeto_Global
 
@@ -31,9 +31,9 @@ import boto3
 
 #SOURCE_VIDEO_PATH = 'c:\\Users\\Analitica2\\Desktop\\test\\comercio_ambulante_paseo_estacion.mp4'
 #rtsp_url = SOURCE_VIDEO_PATH
-MODEL = "yolov8_detector_graffitis.pt"
-#MODEL = 'yolov8x.pt'
-selected_classes = 0
+#MODEL = "yolo_4158imgs_augment_30brillo.pt"
+MODEL = 'yolov8x.pt'
+selected_classes = 1
 segs_frame = 5
 #fps = 25
 
@@ -231,10 +231,10 @@ def main(model, i=0):
         #print(user_inputs)
         #print(len(dets))
         cv2.imshow('Camara Paseo Estacion con analitica', output_frame)
-        if (prev_det == 0) and (prev_det < len(dets)):
+        if (len(dets) > 0):
             momento = datetime.now().strftime("%d_%m_%Y %H_%M_%S")
             datetime_local = datetime.now(tz)
-            cv2.imwrite(f'D:\\analitica_camara_CEGIR\\datos_graffiti\\{momento}.jpg', output_frame)
+            cv2.imwrite(f'D:\\analitica_camara_CEGIR\\datos_ciclistas_vereda\\{momento}.jpg', output_frame)
             datos = {
 			"type": "GS",
             'id_camara': user_inputs[0], 'sub_id_camara': user_inputs[1], 'nombre_calle1': user_inputs[2], 'nombre_calle2': user_inputs[3],
@@ -244,16 +244,15 @@ def main(model, i=0):
 			    "date": datetime_local.strftime("%Y-%m-%d %H:%M:%S"),
 			    "timestamp": int(time.time()),
                 'modelo_detector': model_name,
-                'graffiti_detectado': 1, 'cantidad_detectada': len(dets),
+                'ciclistas_vereda': len(dets),
                 'nombre_imagen': f'{momento}.jpg',
                 }
             #IoTclient.publish(TOPIC, create_payload(datos), 0)
-            with open(f'D:\\analitica_camara_CEGIR\\datos_graffiti\\{momento}.json', 'w') as f:
+            with open(f'D:\\analitica_camara_CEGIR\\datos_ciclistas_vereda\\{momento}.json', 'w') as f:
                 json.dump(datos, f)
-            file_name = f'D:\\analitica_camara_CEGIR\\datos_graffiti\\{momento}.jpg'
+            file_name = f'D:\\analitica_camara_CEGIR\\datos_ciclistas_vereda\\{momento}.jpg'
             key_name = f'{momento}.jpg'
             #s3.upload_file(file_name, bucket, key_name)
-            #print('Nuevo graffiti')
         prev_det = len(dets)
         now = datetime.now()
         dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
