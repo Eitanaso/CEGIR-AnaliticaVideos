@@ -48,16 +48,18 @@ user_inputs = []
 # en el cmd escribir: aws configure y rellenar como es debido (region us-east-1 y formato nada)
 
 s3 = boto3.client('s3')
-bucket = 'camare-iot-120474950462'
-
+#bucket = 'camare-iot-120474950462'
+bucket = 'camare-iot-997128247840'
 
 tz = pytz.timezone('America/Santiago') #America/Mexico_City , #America/Bogota
 
-CLIENT_NAME = "sensor-pruebas"
-global TOPIC
+#CLIENT_NAME = "sensor-pruebas"
+CLIENT_NAME = "sensor"
+#global TOPIC
 #TOPIC = "iot-sensor/device-mx/001" # 001 -> IDcam-subID-comuna-calle1-calle2 (quitar caracteres especiales)
 #TOPIC = "iot-sensor/device-mx/"
-PHAT = "D:\\analitica_camara_CEGIR\\cer\\"
+TOPIC = "iot-sensorps/device-mxps/001"
+PHAT = "D:\\analitica_camara_CEGIR\\cer-prod\\"
 
 BROKER_PATH = "a1htxdpw7uo3bd-ats.iot.us-east-1.amazonaws.com"
 ROOT_CA_PATH = PHAT+'AmazonRootCA1.pem'
@@ -81,7 +83,7 @@ IoTclient.configureConnectDisconnectTimeout(10)
 IoTclient.configureMQTTOperationTimeout(5) 
 
 IoTclient.connect()
-#IoTclient.publish(TOPIC, "connected", 0)
+IoTclient.publish(TOPIC, "connected", 0)
 
 # Create and Send Payloads to the IoT Topic
 def create_payload(datos):
@@ -258,9 +260,9 @@ def main(model, i=0):
 
     #global TOPIC
 
-    TOPIC = "iot-sensor/device-mx/" + f'{user_inputs[0]}_{user_inputs[1]}_{user_inputs[2]}_{user_inputs[3]}_{user_inputs[4]}' #IDcam-subID-comuna-calle1-calle2
+    #TOPIC = "iot-sensor/device-mx/" + f'{user_inputs[0]}_{user_inputs[1]}_{user_inputs[2]}_{user_inputs[3]}_{user_inputs[4]}' #IDcam-subID-comuna-calle1-calle2
 
-    IoTclient.publish(TOPIC, "connected", 0)
+    #IoTclient.publish(TOPIC, "connected", 0)
 
     #print('4', user_inputs)
 
