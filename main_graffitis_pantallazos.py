@@ -30,10 +30,12 @@ import pytz
 import boto3
 
 import re
+import mss
 
 #SOURCE_VIDEO_PATH = 'c:\\Users\\Analitica2\\Desktop\\test\\comercio_ambulante_paseo_estacion.mp4'
 #rtsp_url = SOURCE_VIDEO_PATH
 MODEL = "yolov8_detector_graffitis.pt"
+MODEL = 'graffitis_monumentos_v2.pt'
 #MODEL = 'yolov8x.pt'
 selected_classes = 0
 segs_frame = 5
@@ -59,7 +61,7 @@ CLIENT_NAME = "sensor"
 #TOPIC = "iot-sensor/device-mx/001" # 001 -> IDcam-subID-comuna-calle1-calle2 (quitar caracteres especiales)
 #TOPIC = "iot-sensor/device-mx/"
 TOPIC = "iot-sensorps/device-mxps/001"
-PHAT = "D:\\analitica_camara_CEGIR\\cer-prod\\"
+PHAT = "C:\\CEGIR-AnaliticaVideos-new_main\\cer-prod\\"
 
 BROKER_PATH = "a1htxdpw7uo3bd-ats.iot.us-east-1.amazonaws.com"
 ROOT_CA_PATH = PHAT+'AmazonRootCA1.pem'
@@ -238,9 +240,27 @@ def main(model, i=0):
     starttime = time.monotonic()
     print(starttime)
     global img
-    img = ImageGrab.grab()
-    img = np.asarray(img)
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    #img = ImageGrab.grab()
+    #img = np.asarray(img)
+    #img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    monitor_number = 1
+    mon = mss.mss().monitors[monitor_number]
+
+    # The screen part to capture
+    monitor = {
+        "top": mon["top"],
+        "left": mon["left"],
+        "width": mon["width"],
+        "height": mon["height"],
+        "mon": monitor_number,
+    }
+    output = "sct-mon{mon}_{top}x{left}_{width}x{height}.png".format(**monitor)
+
+    # Grab the data
+    sct_img = mss.mss().grab(monitor)
+    img = np.array(mss.mss().grab(monitor)) # BGR Image
+    #print(img.shape)
+
     cv2.imshow('Seleccion de 2 puntos de camara', img)
     global puntos
     puntos = []
@@ -266,9 +286,11 @@ def main(model, i=0):
 
     #print('4', user_inputs)
 
-    frame = ImageGrab.grab(bbox=bbox)
-    frame = np.asarray(frame)
-    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    #frame = ImageGrab.grab(bbox=bbox)
+    #frame = np.asarray(frame)
+    #frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    frame = np.array(mss.mss().grab(monitor))[bbox[1]:bbox[3], bbox[0]:bbox[2]] # BGR Image
+    #print(frame.shape)
     cv2.imshow('Seleccion de zona de deteccion', frame)
     puntos = []
     cv2.setMouseCallback('Seleccion de zona de deteccion', click_event)
@@ -283,9 +305,13 @@ def main(model, i=0):
     while True:
         #ret, frame = cap.read()
         #bbox = (100, 100, 700, 800)
-        frame = ImageGrab.grab(bbox=bbox)
-        frame = np.asarray(frame)
-        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        #frame = ImageGrab.grab(bbox=bbox)
+        #frame = np.asarray(frame)
+        #frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        frame = np.array(mss.mss().grab(monitor))[bbox[1]:bbox[3], bbox[0]:bbox[2]] # BGR Image
+        #print(frame.shape)
+        frame = frame[..., :3]
+        #print(frame.shape)
         #if not ret:
             #break
         #if i % int(fps * segs_frame) == 0:
@@ -294,10 +320,11 @@ def main(model, i=0):
         #print(user_inputs)
         #print(len(dets))
         cv2.imshow('Detecciones', output_frame)
-        if (prev_det == 0) and (prev_det < len(dets)):
+        #if (prev_det == 0) and (prev_det < len(dets)):
+        if (prev_det < len(dets)):
             momento = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
             datetime_local = datetime.now(tz)
-            cv2.imwrite(f'D:\\analitica_camara_CEGIR\\datos_graffiti\\{momento}_{user_inputs[0]}_{user_inputs[1]}_{user_inputs[2]}_{user_inputs[3]}_{user_inputs[4]}.jpg', output_frame)
+            cv2.imwrite(f'C:\\CEGIR-AnaliticaVideos-new_main\\datos_graffiti\\{momento}_{user_inputs[0]}_{user_inputs[1]}_{user_inputs[2]}_{user_inputs[3]}_{user_inputs[4]}.jpg', output_frame)
             datos = {
 			"type": "GS", "id": str(uuid.uuid4()), 'region': 'Metropolitana de Santiago', 'Provincia': 'Santiago',
             'id_camara': user_inputs[0], 'sub_id_camara': user_inputs[1], 'comuna': user_inputs[2], 
@@ -311,12 +338,12 @@ def main(model, i=0):
                 'graffiti_detectado': 1, 'cantidad_detectada': len(dets),
                 'nombre_imagen': f'{momento}_{user_inputs[0]}_{user_inputs[1]}_{user_inputs[2]}_{user_inputs[3]}_{user_inputs[4]}.jpg', #quitar caracteres especiales
                 }
-            #IoTclient.publish(TOPIC, create_payload(datos), 0)
-            with open(f'D:\\analitica_camara_CEGIR\\datos_graffiti\\{momento}_{user_inputs[0]}_{user_inputs[1]}_{user_inputs[2]}_{user_inputs[3]}_{user_inputs[4]}.json', 'w') as f:
+            IoTclient.publish(TOPIC, create_payload(datos), 0)
+            with open(f'C:\\CEGIR-AnaliticaVideos-new_main\\datos_graffiti\\{momento}_{user_inputs[0]}_{user_inputs[1]}_{user_inputs[2]}_{user_inputs[3]}_{user_inputs[4]}.json', 'w') as f:
                 json.dump(datos, f)
-            file_name = f'D:\\analitica_camara_CEGIR\\datos_graffiti\\{momento}_{user_inputs[0]}_{user_inputs[1]}_{user_inputs[2]}_{user_inputs[3]}_{user_inputs[4]}.jpg'
+            file_name = f'C:\\CEGIR-AnaliticaVideos-new_main\\datos_graffiti\\{momento}_{user_inputs[0]}_{user_inputs[1]}_{user_inputs[2]}_{user_inputs[3]}_{user_inputs[4]}.jpg'
             key_name = f'{momento}_{user_inputs[0]}_{user_inputs[1]}_{user_inputs[2]}_{user_inputs[3]}_{user_inputs[4]}.jpg'
-            #s3.upload_file(file_name, bucket, key_name)
+            s3.upload_file(file_name, bucket, key_name)
             #print('Nuevo graffiti')
         prev_det = len(dets)
         now = datetime.now()

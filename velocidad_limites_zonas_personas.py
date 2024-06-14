@@ -53,10 +53,10 @@ selected_classes = [0]
 # Connect to RTSP stream
 #rtsp_url = r'rtsp://admin:Cafa2414$@10.0.10.182:554/0/profile2/media.smp'
 #---------------------- Ubicacion del video a analizar ------------------------------#
-SOURCE_VIDEO_PATH = r'C:\Users\eitan\Pictures\comercio_ambulante_paseo_estacion.mp4'
+#SOURCE_VIDEO_PATH = r'C:\\CEGIR-AnaliticaVideos-new_maincomercio_ambulante_paseo_estacion.mp4'
 #------------------------------------------------------------------------------------#
 rtsp_url = SOURCE_VIDEO_PATH
-#TARGET_VIDEO_PATH = r'C:\Users\eitan\Pictures\comercio_ambulante_detectado.mp4'
+#TARGET_VIDEO_PATH = r'C:\\CEGIR-AnaliticaVideos-new_main\comercio_ambulante_detectado.mp4'
 cap = cv2.VideoCapture(rtsp_url)
 #cap = cv2.VideoCapture(RTSP_URL, cv2.CAP_FFMPEG)
 
@@ -106,7 +106,7 @@ CLIENT_NAME = "sensor"
 #TOPIC = "iot-sensor/device-mx/001" # 001 -> IDcam-subID-comuna-calle1-calle2 (quitar caracteres especiales)
 #TOPIC = "iot-sensor/device-mx/"
 TOPIC = "iot-sensorps/device-mxps/001"
-PHAT = "D:\\analitica_camara_CEGIR\\cer-prod\\"
+PHAT = "C:\\CEGIR-AnaliticaVideos-new_main\\cer-prod\\"
 
 BROKER_PATH = "a1htxdpw7uo3bd-ats.iot.us-east-1.amazonaws.com"
 ROOT_CA_PATH = PHAT+'AmazonRootCA1.pem'
@@ -513,7 +513,7 @@ while cap.isOpened():
     if len(dets):
        momento = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
        datetime_local = datetime.now(tz)
-       cv2.imwrite(f'D:\\analitica_camara_CEGIR\\datos_velocidades\\{momento}_{user_inputs[0]}_{user_inputs[1]}_{user_inputs[2]}_{user_inputs[3]}_{user_inputs[4]}.jpg', output_frame)
+       cv2.imwrite(f'C:\\CEGIR-AnaliticaVideos-new_main\\datos_velocidades\\{momento}_{user_inputs[0]}_{user_inputs[1]}_{user_inputs[2]}_{user_inputs[3]}_{user_inputs[4]}.jpg', output_frame)
        datos = {
           "type": "GS", "id": str(uuid.uuid4()), 'region': 'Metropolitana de Santiago', 'Provincia': 'Santiago',
             'id_camara': user_inputs[0], 'sub_id_camara': user_inputs[1], 'comuna': user_inputs[2], 
@@ -528,9 +528,9 @@ while cap.isOpened():
                 'nombre_imagen': f'{momento}_{user_inputs[0]}_{user_inputs[1]}_{user_inputs[2]}_{user_inputs[3]}_{user_inputs[4]}.jpg', #quitar caracteres especiales
                 }
        #IoTclient.publish(TOPIC, create_payload(datos), 0)
-       with open(f'D:\\analitica_camara_CEGIR\\datos_velocidades\\{momento}_{user_inputs[0]}_{user_inputs[1]}_{user_inputs[2]}_{user_inputs[3]}_{user_inputs[4]}.json', 'w') as f:
+       with open(f'C:\\CEGIR-AnaliticaVideos-new_main\\datos_velocidades\\{momento}_{user_inputs[0]}_{user_inputs[1]}_{user_inputs[2]}_{user_inputs[3]}_{user_inputs[4]}.json', 'w') as f:
           json.dump(datos, f) 
-       file_name = f'D:\\analitica_camara_CEGIR\\datos_velocidades\\{momento}_{user_inputs[0]}_{user_inputs[1]}_{user_inputs[2]}_{user_inputs[3]}_{user_inputs[4]}.jpg'
+       file_name = f'C:\\CEGIR-AnaliticaVideos-new_main\\datos_velocidades\\{momento}_{user_inputs[0]}_{user_inputs[1]}_{user_inputs[2]}_{user_inputs[3]}_{user_inputs[4]}.jpg'
        key_name = f'{momento}_{user_inputs[0]}_{user_inputs[1]}_{user_inputs[2]}_{user_inputs[3]}_{user_inputs[4]}.jpg'
        #s3.upload_file(file_name, bucket, key_name)
     if cv2.waitKey(1) & 0xFF == ord('q'):
