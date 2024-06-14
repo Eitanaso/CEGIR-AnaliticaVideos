@@ -311,12 +311,12 @@ def main(model, i=0):
                 'graffiti_detectado': 1, 'cantidad_detectada': len(dets),
                 'nombre_imagen': f'{momento}_{user_inputs[0]}_{user_inputs[1]}_{user_inputs[2]}_{user_inputs[3]}_{user_inputs[4]}.jpg', #quitar caracteres especiales
                 }
-            IoTclient.publish(TOPIC, create_payload(datos), 0)
+            #IoTclient.publish(TOPIC, create_payload(datos), 0)
             with open(f'D:\\analitica_camara_CEGIR\\datos_graffiti\\{momento}_{user_inputs[0]}_{user_inputs[1]}_{user_inputs[2]}_{user_inputs[3]}_{user_inputs[4]}.json', 'w') as f:
                 json.dump(datos, f)
             file_name = f'D:\\analitica_camara_CEGIR\\datos_graffiti\\{momento}_{user_inputs[0]}_{user_inputs[1]}_{user_inputs[2]}_{user_inputs[3]}_{user_inputs[4]}.jpg'
             key_name = f'{momento}_{user_inputs[0]}_{user_inputs[1]}_{user_inputs[2]}_{user_inputs[3]}_{user_inputs[4]}.jpg'
-            s3.upload_file(file_name, bucket, key_name)
+            #s3.upload_file(file_name, bucket, key_name)
             #print('Nuevo graffiti')
         prev_det = len(dets)
         now = datetime.now()

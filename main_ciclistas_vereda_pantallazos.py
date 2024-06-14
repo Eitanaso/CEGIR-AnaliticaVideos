@@ -29,6 +29,8 @@ from datetime import date, datetime
 import pytz
 import boto3
 
+import re
+
 #SOURCE_VIDEO_PATH = 'c:\\Users\\Analitica2\\Desktop\\test\\comercio_ambulante_paseo_estacion.mp4'
 #rtsp_url = SOURCE_VIDEO_PATH
 #MODEL = "yolo_4158imgs_augment_30brillo.pt"
@@ -37,6 +39,7 @@ selected_classes = 1
 segs_frame = 5
 #fps = 25
 
+global user_inputs
 user_inputs = []
 
 
@@ -45,14 +48,20 @@ user_inputs = []
 # en el cmd escribir: aws configure y rellenar como es debido (region us-east-1 y formato nada)
 
 s3 = boto3.client('s3')
-bucket = 'camare-iot-120474950462'
+#ingresar bucket correcto
+bucket = 'camare-iot-997128247840'
 
 
 tz = pytz.timezone('America/Santiago') #America/Mexico_City , #America/Bogota
 
-CLIENT_NAME = "sensor-pruebas"
-TOPIC = "iot-sensor/device-mx/001"
-PHAT = "D:\\analitica_camara_CEGIR\\cer\\"
+#CLIENT_NAME = "sensor-pruebas"
+#ingresar nombre de cliente correcto
+CLIENT_NAME = "sensor"
+#global TOPIC
+#TOPIC = "iot-sensor/device-mx/001" # 001 -> IDcam-subID-comuna-calle1-calle2 (quitar caracteres especiales)
+#TOPIC = "iot-sensor/device-mx/"
+TOPIC = "iot-sensorps/device-mxps/001"
+PHAT = "D:\\analitica_camara_CEGIR\\cer-prod\\"
 
 BROKER_PATH = "a1htxdpw7uo3bd-ats.iot.us-east-1.amazonaws.com"
 ROOT_CA_PATH = PHAT+'AmazonRootCA1.pem'
@@ -92,23 +101,69 @@ def create_payload(datos):
 	return payload
 
 def get_user_input():
-    user_input = entry_ID.get()
-    user_inputs.append(user_input)
-    user_input = entry_subID.get()
-    user_inputs.append(user_input)
-    user_input = entry_calle1.get()
-    user_inputs.append(user_input)
-    user_input = entry_calle2.get()
-    user_inputs.append(user_input)
-    user_input = entry_comuna.get()
-    user_inputs.append(user_input)
+    info_obligatoria = True
+    #print('2', user_inputs)
+    #user_inputs = []
+    #print('2', user_inputs)
+
+    global user_inputs
+
+    if entry_ID.get():
+        user_input = entry_ID.get()
+        user_inputs.append(re.sub('[^A-Za-z0-9]+', '', user_input))
+    else:
+        info_obligatoria = False
+        print('Falta ID de Camara')
+        entry_ID.focus_set()
+
+    if entry_subID.get():
+        user_input = entry_subID.get()
+        user_inputs.append(re.sub('[^A-Za-z0-9]+', '', user_input))
+    else:
+        info_obligatoria = False
+        print('Falta sub ID de Camara')
+        entry_ID.focus_set()
+
+    if entry_comuna.get():
+        user_input = entry_comuna.get()
+        user_inputs.append(re.sub('[^A-Za-z0-9]+', '', user_input))
+    else:
+        info_obligatoria = False
+        print('Falta comuna de Camara')
+        entry_ID.focus_set()
+
+    if entry_calle1.get():
+        user_input = entry_calle1.get()
+        user_inputs.append(re.sub('[^A-Za-z0-9]+', '', user_input))
+    else:
+        info_obligatoria = False
+        print('Falta calle 1 de Camara')
+        entry_ID.focus_set()
+
+    if entry_calle2.get():
+        user_input = entry_calle2.get()
+        user_inputs.append(re.sub('[^A-Za-z0-9]+', '', user_input))
+    else:
+        info_obligatoria = False
+        print('Falta calle 2 de Camara')
+        entry_ID.focus_set()
+
     user_input = entry_enfoque.get()
-    user_inputs.append(user_input)
+    user_inputs.append(re.sub('[^A-Za-z0-9]+', '', user_input))
+
     user_input = entry_marca.get()
-    user_inputs.append(user_input)
+    user_inputs.append(re.sub('[^A-Za-z0-9]+', '', user_input))
+
     user_input = entry_modelo.get()
-    user_inputs.append(user_input)
-    window.destroy()
+    user_inputs.append(re.sub('[^A-Za-z0-9]+', '', user_input))
+
+    #print('3', user_inputs)
+
+    if info_obligatoria:
+        window.destroy()
+    else:
+        user_inputs = []
+        print('-------------------------------------------------------------')
 
 window = tk.Tk()
 label = tk.Label(window, text='Datos utiles')
@@ -188,10 +243,10 @@ def main(model, i=0):
     img = ImageGrab.grab()
     img = np.asarray(img)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    cv2.imshow('frame', img)
+    cv2.imshow('Seleccion de 2 puntos de camara', img)
     global puntos
     puntos = []
-    cv2.setMouseCallback('frame', click_event)
+    cv2.setMouseCallback('Seleccion de 2 puntos de camara', click_event)
     while True:
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
@@ -206,9 +261,9 @@ def main(model, i=0):
     frame = ImageGrab.grab(bbox=bbox)
     frame = np.asarray(frame)
     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    cv2.imshow('frame', frame)
+    cv2.imshow('Seleccion de zona de deteccion', frame)
     puntos = []
-    cv2.setMouseCallback('frame', click_event)
+    cv2.setMouseCallback('Seleccion de zona de deteccion', click_event)
     while True:
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
@@ -230,28 +285,29 @@ def main(model, i=0):
         #print(output_frame.shape)
         #print(user_inputs)
         #print(len(dets))
-        cv2.imshow('Camara Paseo Estacion con analitica', output_frame)
+        cv2.imshow('Detecciones', output_frame)
         if (len(dets) > 0):
-            momento = datetime.now().strftime("%d_%m_%Y %H_%M_%S")
+            momento = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
             datetime_local = datetime.now(tz)
-            cv2.imwrite(f'D:\\analitica_camara_CEGIR\\datos_ciclistas_vereda\\{momento}.jpg', output_frame)
+            cv2.imwrite(f'D:\\analitica_camara_CEGIR\\datos_ciclistas_vereda\\{momento}_{user_inputs[0]}_{user_inputs[1]}_{user_inputs[2]}_{user_inputs[3]}_{user_inputs[4]}.jpg', output_frame)
             datos = {
-			"type": "GS",
-            'id_camara': user_inputs[0], 'sub_id_camara': user_inputs[1], 'nombre_calle1': user_inputs[2], 'nombre_calle2': user_inputs[3],
-                     'comuna': user_inputs[4], 'direccion_cardinal_enfoque_camara': user_inputs[5], 'marca_camara': user_inputs[6],
+			"type": "GS","id": str(uuid.uuid4()), 'region': 'Metropolitana de Santiago', 'Provincia': 'Santiago',
+            'id_camara': user_inputs[0], 'sub_id_camara': user_inputs[1], 'comuna': user_inputs[2],
+            'nombre_calle1': user_inputs[3], 'nombre_calle2': user_inputs[4],
+                      'direccion_cardinal_enfoque_camara': user_inputs[5], 'marca_camara': user_inputs[6],
                      'modelo': user_inputs[7], 'resolucion_screenshot': output_frame.shape,
                 #'dia': momento.split(' ')[0], 'hora_min_seg': momento.split(' ')[1], 
 			    "date": datetime_local.strftime("%Y-%m-%d %H:%M:%S"),
 			    "timestamp": int(time.time()),
                 'modelo_detector': model_name,
                 'ciclistas_vereda': len(dets),
-                'nombre_imagen': f'{momento}.jpg',
+                'nombre_imagen': f'{momento}_{user_inputs[0]}_{user_inputs[1]}_{user_inputs[2]}_{user_inputs[3]}_{user_inputs[4]}.jpg',
                 }
             #IoTclient.publish(TOPIC, create_payload(datos), 0)
-            with open(f'D:\\analitica_camara_CEGIR\\datos_ciclistas_vereda\\{momento}.json', 'w') as f:
+            with open(f'D:\\analitica_camara_CEGIR\\datos_ciclistas_vereda\\{momento}_{user_inputs[0]}_{user_inputs[1]}_{user_inputs[2]}_{user_inputs[3]}_{user_inputs[4]}.json', 'w') as f:
                 json.dump(datos, f)
-            file_name = f'D:\\analitica_camara_CEGIR\\datos_ciclistas_vereda\\{momento}.jpg'
-            key_name = f'{momento}.jpg'
+            file_name = f'D:\\analitica_camara_CEGIR\\datos_ciclistas_vereda\\{momento}_{user_inputs[0]}_{user_inputs[1]}_{user_inputs[2]}_{user_inputs[3]}_{user_inputs[4]}.jpg'
+            key_name = f'{momento}_{user_inputs[0]}_{user_inputs[1]}_{user_inputs[2]}_{user_inputs[3]}_{user_inputs[4]}.jpg'
             #s3.upload_file(file_name, bucket, key_name)
         prev_det = len(dets)
         now = datetime.now()

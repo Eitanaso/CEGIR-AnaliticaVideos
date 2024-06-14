@@ -16,6 +16,7 @@ parser = argparse.ArgumentParser(description='Ejecutar la deteccion del modelo')
 
 SOURCE_VIDEO_PATH = 'c:\\Users\\Analitica2\\Desktop\\test\\comercio_ambulante_paseo_estacion.mp4'
 SOURCE_VIDEO_PATH = 'c:\\Users\\Analitica2\\Desktop\\test\\paseo_estacion_loop_12h.mp4'
+SOURCE_VIDEO_PATH = r'C:\Users\eitan\Pictures\comercio_ambulante_paseo_estacion.mp4'
 rtsp_url = SOURCE_VIDEO_PATH
 MODEL = "yolov8x.pt"
 fijas = {
@@ -38,7 +39,7 @@ variables = {
     'texto_contador': ['Per ab-arr', 'Per arr-ab'],
     'periodicidad_contador': 60,
     'nombre_contador': 'contador12h_2',
-    'direccion_archivo': 'C:\\Users\\Analitica2\\Desktop\\test\\',
+    'direccion_archivo': 'C:\\Users\\eitan\\Pictures\\',
 }
 procesamiento = {
     'var_fijas': fijas,
