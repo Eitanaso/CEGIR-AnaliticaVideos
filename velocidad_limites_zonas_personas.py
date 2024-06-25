@@ -6,7 +6,7 @@ import time
 from funciones.general import *
 from funciones.velocidades import *
 
-from datetime import datetime
+from datetime import datetime, timedelta
 import time
 import numpy as np
 
@@ -40,7 +40,7 @@ import re
 # Por mayores dudas de las funciones, comunicarse con Eitan Hasson Arellano a traves del correo eitanhass@gmail.com
 #--------------------------------------------------------------------------------------------------------------------
 
-MODEL = "yolov8n.pt"
+MODEL = "yolov8x.pt"
 # Load YOLOv8 model
 model = YOLO(MODEL)
 model.fuse()
@@ -53,7 +53,7 @@ selected_classes = [0]
 # Connect to RTSP stream
 #rtsp_url = r'rtsp://admin:Cafa2414$@10.0.10.182:554/0/profile2/media.smp'
 #---------------------- Ubicacion del video a analizar ------------------------------#
-#SOURCE_VIDEO_PATH = r'C:\\CEGIR-AnaliticaVideos-new_maincomercio_ambulante_paseo_estacion.mp4'
+SOURCE_VIDEO_PATH = r'C:\\CEGIR-AnaliticaVideos-new_main\\comercio_ambulante_paseo_estacion.mp4'
 #------------------------------------------------------------------------------------#
 rtsp_url = SOURCE_VIDEO_PATH
 #TARGET_VIDEO_PATH = r'C:\\CEGIR-AnaliticaVideos-new_main\comercio_ambulante_detectado.mp4'
@@ -228,6 +228,19 @@ def get_user_input():
         print('Falta velocidad inferior de Camara')
         entry_vsup.focus_set()
 
+    if entry_fecha_vid.get():
+        #if str(user_input).isdigit():
+        user_input = entry_fecha_vid.get()
+        #else:
+           #info_obligatoria = False
+           #print('Numero invalido, debe ser entero, recomendado 100')
+           #entry_vsup.focus_set()
+        user_inputs.append(user_input)
+    else:
+        info_obligatoria = False
+        print('Falta fecha y hora del video')
+        entry_fecha_vid.focus_set()
+
     #print('3', user_inputs)
 
     if info_obligatoria:
@@ -289,6 +302,11 @@ label = tk.Label(window, text='Velocidad Superior de zona (obligatorio, recomend
 label.pack()
 entry_vsup = tk.Entry(window)
 entry_vsup.pack()
+
+label = tk.Label(window, text='Fecha y hora de video (Obligatorio, en formato YYYY/MM/DD HH:MM:SS):') #obligatorio
+label.pack()
+entry_fecha_vid = tk.Entry(window)
+entry_fecha_vid.pack()
 
 close_button = tk.Button(window, text='Close', command=get_user_input)
 close_button.pack()
@@ -496,6 +514,11 @@ polygon_zone_annotator2.center = sv.Point(50, 30)#(470, 198)
 sup2 = int(user_inputs[9])
 inf2 = int(user_inputs[8])
 
+now = datetime.now()
+
+# dd/mm/YY H:M:S
+dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+print("inicio =", dt_string)
 while cap.isOpened():
     ret, frame = cap.read()
     #frame = cv2.resize(frame, (640, 640))
@@ -513,6 +536,13 @@ while cap.isOpened():
     if len(dets):
        momento = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
        datetime_local = datetime.now(tz)
+       #diff = datetime.strptime(momento, "%Y_%m_%d_%H_%M_%S")-now
+       #print(diff)
+       #print(datetime.strptime(user_inputs[10], "%Y/%m/%d %H:%M:%S") + diff)
+       #momento = datetime.strptime(user_inputs[10], "%Y/%m/%d %H:%M:%S") + diff
+       momento = (datetime.strptime(user_inputs[10], "%Y/%m/%d %H:%M:%S") + timedelta(seconds=(i//fps)))#.time()
+       #momento = pd.to_datetime(momento, format='%Y_%m_%d_%H_%M_%S')
+       momento = momento.strftime("%Y_%m_%d_%H_%M_%S")
        cv2.imwrite(f'C:\\CEGIR-AnaliticaVideos-new_main\\datos_velocidades\\{momento}_{user_inputs[0]}_{user_inputs[1]}_{user_inputs[2]}_{user_inputs[3]}_{user_inputs[4]}.jpg', output_frame)
        datos = {
           "type": "GS", "id": str(uuid.uuid4()), 'region': 'Metropolitana de Santiago', 'Provincia': 'Santiago',
@@ -521,6 +551,7 @@ while cap.isOpened():
                      'direccion_cardinal_enfoque_camara': user_inputs[5], 'marca_camara': user_inputs[6],
                      'modelo': user_inputs[7], 'resolucion_screenshot': output_frame.shape,
                 #'dia': momento.split(' ')[0], 'hora_min_seg': momento.split(' ')[1], 
+                'date_det': momento,
 			    "date": datetime_local.strftime("%Y-%m-%d %H:%M:%S"),
 			    "timestamp": int(time.time()),
                 'modelo_detector': MODEL,
